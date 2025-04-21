@@ -1,0 +1,109 @@
+.koi-schedule-container {
+    background-color: #f9f0f9;
+    padding: 20px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    color: #333;
+}
+
+.koi-schedule-title {
+    color: #222;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.koi-schedule-date-range {
+    color: #777;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.koi-schedule-date-range .dashicons {
+    margin-bottom: 5px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.koi-schedule-day {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 3px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.koi-schedule-day-title {
+    color: #555;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.koi-schedule-day-title .dashicons {
+    margin-bottom: 5px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.koi-schedule-time-slot {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.koi-schedule-time-slot:last-child {
+    border-bottom: none;
+}
+
+.koi-schedule-time {
+    color: #888;
+    font-weight: bold;
+    font-size: 0.8em;
+    flex-shrink: 0;
+}
+
+.koi-schedule-time .dashicons {
+    margin-right: 5px;
+    margin-bottom: 3px;
+    vertical-align: middle;
+}
+
+.koi-schedule-streamer {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+.koi-schedule-streamer:last-child {
+    margin-bottom: 0;
+}
+
+.koi-streamer-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: transparent;
+    background-size: cover;
+    background-position: center;
+    margin-right: 5px;
+}
+
+.koi-streamer-name {
+    font-weight: bold;
+    color: #444;
+}
+
+.koi-schedule-streamer a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.koi-schedule-streamer a:hover {
+    text-decoration: underline;
+}
+
+.koi-streamer-list {
+    align-items: center;
+}
