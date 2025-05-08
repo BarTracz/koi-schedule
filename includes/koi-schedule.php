@@ -4,7 +4,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function create_koi_schedule_table() {
+function create_koi_schedule_table(): void
+{
     global $wpdb;
 
     $table_name = $wpdb->prefix . 'koi_schedule';
@@ -27,7 +28,8 @@ function create_koi_schedule_table() {
     }
 }
 
-function schedule_entry_form() {
+function schedule_entry_form(): false|string
+{
     global $wpdb;
     $streamers_table = $wpdb->prefix . 'koi_streamers';
     $streamers = $wpdb->get_results("SELECT * FROM $streamers_table");
@@ -57,10 +59,12 @@ function schedule_entry_form() {
                 <tr>
                     <th>Date</th>
                     <th>Time</th>
+                    <th>Action</th>
                 </tr>
                 <tr>
                     <td><input type="date" id="date_0" name="schedule_entries[0][date]" required></td>
                     <td><input type="time" id="time_0" name="schedule_entries[0][time]" required></td>
+                    <td><button type="button" class="remove-entry button button-secondary">Remove</button></td>
                 </tr>
             </table>
         </div>
@@ -80,23 +84,38 @@ function schedule_entry_form() {
             const entry = document.createElement('table');
             entry.classList.add('schedule-entry');
             entry.innerHTML = `
-                <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                </tr>
-                <tr>
-                    <td><input type="date" id="date_${index}" name="schedule_entries[${index}][date]" required></td>
-                    <td><input type="time" id="time_${index}" name="schedule_entries[${index}][time]" required></td>
-                </tr>
-            `;
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                <td><input type="date" id="date_${index}" name="schedule_entries[${index}][date]" required></td>
+                <td><input type="time" id="time_${index}" name="schedule_entries[${index}][time]" required></td>
+                <td><button type="button" class="remove-entry button button-secondary">Remove</button></td>
+            </tr>
+        `;
             container.appendChild(entry);
+
+            entry.querySelector('.remove-entry').addEventListener('click', function() {
+                container.removeChild(entry);
+            });
+        });
+
+        document.querySelectorAll('.remove-entry').forEach(button => {
+            button.addEventListener('click', function() {
+                const container = document.getElementById('schedule-entries');
+                const entry = button.closest('table.schedule-entry');
+                container.removeChild(entry);
+            });
         });
     </script>
     <?php
     return ob_get_clean();
 }
 
-function schedule_entry_form_handler() {
+function schedule_entry_form_handler(): void
+{
     if (isset($_POST['schedule_action']) && $_POST['schedule_action'] === 'add_schedule') {
         if (!isset($_POST['koi_schedule_nonce_field']) || !wp_verify_nonce($_POST['koi_schedule_nonce_field'], 'koi_schedule_nonce_action')) {
             return;
@@ -132,12 +151,13 @@ function schedule_entry_form_handler() {
     }
 }
 
-function schedule_edit_entry_form() {
+function schedule_edit_entry_form(): void
+{
     global $wpdb;
     $schedule_table = $wpdb->prefix . 'koi_schedule';
     $streamers_table = $wpdb->prefix . 'koi_streamers';
 
-    $items_per_page = 10;
+    $items_per_page = 30;
     $current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
     $offset = ($current_page - 1) * $items_per_page;
 
@@ -159,6 +179,7 @@ function schedule_edit_entry_form() {
     echo '<div class="wrap">';
     echo '<h1>Edit schedule entries</h1>';
 
+    echo '<form method="post" action="">';
     echo '<p>Sort by: ';
     echo '<a href="' . esc_url(add_query_arg(['sort_by' => 'streamer_name', 'order' => $order === 'ASC' ? 'desc' : 'asc'])) . '">Name</a> | ';
     echo '<a href="' . esc_url(add_query_arg(['sort_by' => 'time', 'order' => $order === 'ASC' ? 'desc' : 'asc'])) . '">Date</a>';
@@ -195,6 +216,14 @@ function schedule_edit_entry_form() {
         echo '</tbody>';
         echo '</table>';
 
+        echo '<p>';
+        echo '<label for="delete-older-date">Delete entries older than:</label> ';
+        echo '<input type="date" id="delete-older-date" name="delete_older_date">';
+        echo '</p>';
+        echo '<p>';
+        echo '<button type="submit" name="schedule_action" value="delete_older" class="button button-secondary" onclick="return confirm(\'Are you sure you want to delete entries older than the selected date?\');">Delete</button>';
+        echo '</p>';
+
         $total_pages = ceil($total_items / $items_per_page);
         echo '<div class="tablenav"><div class="tablenav-pages">';
         if ($current_page > 1) {
@@ -208,12 +237,38 @@ function schedule_edit_entry_form() {
         echo '<p>No entries found.</p>';
     }
 
+    echo '</form>';
     echo '</div>';
+
+    echo '<script>
+        document.getElementById("select-all").addEventListener("click", function() {
+            const checkboxes = document.querySelectorAll("input[name=\'bulk_delete_ids[]\']");
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+    </script>';
 }
 
-function schedule_edit_entry_form_handler() {
+function schedule_edit_entry_form_handler(): void
+{
     global $wpdb;
     $schedule_table = $wpdb->prefix . 'koi_schedule';
+
+    if (isset($_POST['schedule_action']) && $_POST['schedule_action'] === 'delete_older') {
+        if (!isset($_POST['koi_schedule_nonce_field']) || !wp_verify_nonce($_POST['koi_schedule_nonce_field'], 'koi_schedule_nonce_action')) {
+            return;
+        }
+
+        $delete_older_date = sanitize_text_field($_POST['delete_older_date']);
+        if ($delete_older_date) {
+            $wpdb->query($wpdb->prepare(
+                "DELETE FROM $schedule_table WHERE time < %s",
+                $delete_older_date . ' 00:00:00'
+            ));
+            echo '<div class="updated"><p>Entries older than ' . esc_html($delete_older_date) . ' deleted successfully!</p></div>';
+        } else {
+            echo '<div class="error"><p>Please select a valid date.</p></div>';
+        }
+    }
 
     if (isset($_POST['schedule_action']) && $_POST['schedule_action'] === 'edit_schedule') {
         if (!isset($_POST['koi_schedule_nonce_field']) || !wp_verify_nonce($_POST['koi_schedule_nonce_field'], 'koi_schedule_nonce_action')) {
@@ -234,7 +289,9 @@ function schedule_edit_entry_form_handler() {
         );
 
         echo '<div class="updated"><p>Schedule entry updated successfully!</p></div>';
-    } else if (isset($_POST['schedule_action']) && $_POST['schedule_action'] === 'delete_schedule') {
+    }
+
+    if (isset($_POST['schedule_action']) && $_POST['schedule_action'] === 'delete_schedule') {
         $entry_id = intval($_POST['entry_id']);
 
         $wpdb->delete(
@@ -247,7 +304,8 @@ function schedule_edit_entry_form_handler() {
     }
 }
 
-function schedule_add_menu_page() {
+function schedule_add_menu_page(): void
+{
     add_menu_page(
         'Add schedule entries',
         'Koi Schedule',
@@ -268,14 +326,16 @@ function schedule_add_menu_page() {
     );
 }
 
-function schedule_entry_page() {
+function schedule_entry_page(): void
+{
     echo '<div class="wrap">';
     echo '<h1>Koi schedule form</h1>';
     echo schedule_entry_form();
     echo '</div>';
 }
 
-function schedule_edit_entry_page() {
+function schedule_edit_entry_page(): void
+{
     echo '<div class="wrap">';
     schedule_edit_entry_form();
     echo '</div>';
