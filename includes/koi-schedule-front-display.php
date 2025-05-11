@@ -94,7 +94,7 @@ function display_schedule(): false|string {
 			$hours_of_day = $day_data['hours'];
 
 			echo '<div class="koi-schedule-day">';
-			echo '<h3 class="koi-schedule-day-title"><span class="dashicons dashicons-calendar"></span> ' . esc_html(mb_strtoupper($day_name_pl, 'UTF-8')) . ' - ' . esc_html($day_display_date) . '</h3>';
+			echo '<h3 class="koi-schedule-day-title">' . esc_html(mb_strtoupper($day_name_pl, 'UTF-8')) . ' - ' . esc_html($day_display_date) . '</h3>';
 
 			ksort($hours_of_day);
 
@@ -117,7 +117,9 @@ function display_schedule(): false|string {
 					$style = ($total_streamers_this_slot === 1) ? 'style="width: calc(50% - 5px);"' : '';
 
 					echo '<div class="koi-schedule-streamer" ' . $style . '>';
+					echo '<a href="' . esc_url($streamer['link']) . '" target="_blank" rel="noopener noreferrer">';
 					echo '<span class="koi-streamer-avatar" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
+					echo '</a>';
 					echo '</div>';
 
 					$streamer_counter++;
@@ -135,7 +137,7 @@ function display_schedule(): false|string {
 		echo '</div>';
 	} else {
 		echo '<div class="koi-schedule-no-streamers">';
-		echo '<p><span class="dashicons dashicons-warning"></span> Brak zaplanowanych streamów w tym tygodniu.</p>';
+		echo '<p>Brak zaplanowanych streamów w tym tygodniu.</p>';
 		echo '</div>';
 	}
 

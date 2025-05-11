@@ -1,21 +1,24 @@
 /* General Container Styles */
 .koi-schedule-container {
-    background-color: #000000;
+    background-color: rgba(60, 200, 212, 0.3);
     padding: 20px;
     border-radius: 8px;
-    font-family: sans-serif;
     color: #333;
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 /* Title and Date Range Styles */
 .koi-schedule-title {
-    color: #ffffff;
+    color: #000000;
     text-align: center;
     margin-bottom: 10px;
 }
 
 .koi-schedule-date-range {
-    color: #ffffff;
+    color: #000000;
     text-align: center;
     margin-bottom: 20px;
 }
@@ -30,16 +33,16 @@
 .koi-schedule-day {
     margin-bottom: 20px;
     padding: 15px;
-    background-color: #1f2937;
+    background-color: rgb(255, 255, 255);
     border-radius: 8px;
-    border-bottom: 2px solid #1f2937;
 }
 
 .koi-schedule-day-title {
-    color: #ffffff;
+    color: #000000;
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 1em;
+    text-align: center;
 }
 
 .koi-schedule-day-title .dashicons {
@@ -60,7 +63,7 @@
 }
 
 .koi-schedule-time {
-    color: #888;
+    color: #000000;
     font-weight: bold;
     font-size: 0.8em;
     flex-shrink: 0;
@@ -103,7 +106,7 @@
 
 .koi-streamer-name {
     font-weight: bold;
-    color: #444;
+    color: #000000;
 }
 
 /* Streamer List and Row Styles */
@@ -124,12 +127,16 @@
     margin-bottom: 0;
 }
 
+.koi-schedule-no-streamers {
+    text-align: center;
+}
+
 /* Hour Styles */
 .koi-schedule-hour {
     font-size: 1em;
     font-weight: bold;
-    color: #ffffff;
+    color: #000000;
     margin-bottom: 10px;
-    border-bottom: 1px solid #ffffff;
+    border-bottom: 1px solid #000000;
     padding-bottom: 5px;
 }
