@@ -1,19 +1,21 @@
+/* General Container Styles */
 .koi-schedule-container {
-    background-color: #f9f0f9;
+    background-color: #000000;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-family: sans-serif;
     color: #333;
 }
 
+/* Title and Date Range Styles */
 .koi-schedule-title {
-    color: #222;
+    color: #ffffff;
     text-align: center;
     margin-bottom: 10px;
 }
 
 .koi-schedule-date-range {
-    color: #777;
+    color: #ffffff;
     text-align: center;
     margin-bottom: 20px;
 }
@@ -24,16 +26,17 @@
     margin-right: 5px;
 }
 
+/* Day Section Styles */
 .koi-schedule-day {
     margin-bottom: 20px;
     padding: 15px;
-    background-color: #fff;
-    border-radius: 3px;
-    border-bottom: 2px solid #e0e0e0;
+    background-color: #1f2937;
+    border-radius: 8px;
+    border-bottom: 2px solid #1f2937;
 }
 
 .koi-schedule-day-title {
-    color: #555;
+    color: #ffffff;
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 1em;
@@ -45,11 +48,11 @@
     margin-right: 5px;
 }
 
+/* Time Slot Styles */
 .koi-schedule-time-slot {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
+    display: block;
+    /* padding: 5px 0; */
+    /* border-bottom: 1px solid #ffffff; */
 }
 
 .koi-schedule-time-slot:last-child {
@@ -69,30 +72,14 @@
     vertical-align: middle;
 }
 
+/* Streamer Styles */
 .koi-schedule-streamer {
-    display: flex;
-    align-items: center;
-    margin-left: 15px;
-    margin-bottom: 10px;
+    margin-right: 10px;
+    width: 50%;
 }
 
 .koi-schedule-streamer:last-child {
-    margin-bottom: 0;
-}
-
-.koi-streamer-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: transparent;
-    background-size: cover;
-    background-position: center;
-    margin-right: 5px;
-}
-
-.koi-streamer-name {
-    font-weight: bold;
-    color: #444;
+    margin-right: 0;
 }
 
 .koi-schedule-streamer a {
@@ -104,6 +91,45 @@
     text-decoration: underline;
 }
 
+.koi-streamer-avatar {
+    width: 100%;
+    border-radius: 8px;
+    background-color: transparent;
+    background-size: cover;
+    background-position: center;
+    display: block;
+    aspect-ratio: 1259 / 151;
+}
+
+.koi-streamer-name {
+    font-weight: bold;
+    color: #444;
+}
+
+/* Streamer List and Row Styles */
 .koi-streamer-list {
     align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.koi-streamer-row {
+    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.koi-streamer-row:last-child {
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+/* Hour Styles */
+.koi-schedule-hour {
+    font-size: 1em;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ffffff;
+    padding-bottom: 5px;
 }

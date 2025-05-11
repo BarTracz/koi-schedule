@@ -6,19 +6,18 @@ if ( ! defined('ABSPATH') ) {
 
 date_default_timezone_set('Europe/Warsaw');
 
-function display_schedule(): false|string
-{
-    global $wpdb;
-    $schedule_table = $wpdb->prefix . 'koi_schedule';
-    $streamers_table = $wpdb->prefix . 'koi_streamers';
+function display_schedule(): false|string {
+	global $wpdb;
+	$schedule_table  = $wpdb->prefix . 'koi_schedule';
+	$streamers_table = $wpdb->prefix . 'koi_streamers';
 
-    $week_offset = isset($_GET['week_offset']) ? intval($_GET['week_offset']) : 0;
+	$week_offset = isset( $_GET['week_offset'] ) ? intval( $_GET['week_offset'] ) : 0;
 
-    $start_of_week = date('Y-m-d', strtotime("monday this week $week_offset week"));
-    $end_of_week = date('Y-m-d', strtotime("sunday this week $week_offset week"));
+	$start_of_week = date( 'Y-m-d', strtotime("monday this week $week_offset week"));
+	$end_of_week   = date( 'Y-m-d', strtotime("sunday this week $week_offset week"));
 
-    $query = $wpdb->prepare(
-        "
+	$query = $wpdb->prepare(
+		"
     SELECT
         DATE_FORMAT(s.time, '%%H:%%i') AS time_formatted,
         DATE_FORMAT(s.time, '%%Y-%%m-%%d') AS date_formatted,
@@ -30,83 +29,117 @@ function display_schedule(): false|string
     WHERE DATE(s.time) BETWEEN %s AND %s
     ORDER BY s.time ASC
     ",
-        $start_of_week,
-        $end_of_week
-    );
+		$start_of_week,
+		$end_of_week
+	);
 
-    $results = $wpdb->get_results($query);
+	$results = $wpdb->get_results($query);
 
-    $grouped_schedule = [];
-    $days_of_week = [
-        'Monday'    => 'Poniedziałek',
-        'Tuesday'   => 'Wtorek',
-        'Wednesday' => 'Środa',
-        'Thursday'  => 'Czwartek',
-        'Friday'    => 'Piątek',
-        'Saturday'  => 'Sobota',
-        'Sunday'    => 'Niedziela',
-    ];
+	$grouped_schedule = [];
+	$days_of_week     = [
+		'Monday'    => 'Poniedziałek',
+		'Tuesday'   => 'Wtorek',
+		'Wednesday' => 'Środa',
+		'Thursday'  => 'Czwartek',
+		'Friday'    => 'Piątek',
+		'Saturday'  => 'Sobota',
+		'Sunday'    => 'Niedziela',
+	];
 
-    foreach ($results as $row) {
-        $datetime = new DateTime($row->date_formatted);
-        $day_en = $datetime->format('l');
-        $day_pl = $days_of_week[$day_en];
-        $hour = $row->time_formatted;
+	foreach ( $results as $row ) {
+		$datetime = new DateTime($row->date_formatted);
+		$day_en   = $datetime->format('l');
+		$day_pl   = $days_of_week[$day_en];
+		$hour     = $row->time_formatted;
 
-        if (!isset($grouped_schedule[$day_pl])) {
-            $grouped_schedule[$day_pl] = [];
-        }
-        if (!isset($grouped_schedule[$day_pl][$hour])) {
-            $grouped_schedule[$day_pl][$hour] = [];
-        }
+		$date_for_day_display = $datetime->format('d.m');
 
-        $grouped_schedule[$day_pl][$hour][] = [
-            'name' => esc_html($row->streamer_name),
-            'link' => esc_url($row->streamer_link),
-            'avatar_url' => esc_url($row->streamer_avatar_url),
-        ];
-    }
+		if (!isset($grouped_schedule[$day_pl])) {
+			$grouped_schedule[$day_pl] = [
+				'display_date' => $date_for_day_display,
+				'hours'        => [],
+			];
+		}
+		if (!isset( $grouped_schedule[$day_pl]['hours'][$hour])) {
+			$grouped_schedule[ $day_pl ]['hours'][ $hour ] = [];
+		}
 
-    ob_start();
-    echo '<div class="koi-schedule-container">';
-    echo '<p class="koi-schedule-date-range"><span class="dashicons dashicons-calendar-alt"></span> ' . $start_of_week . ' - ' . $end_of_week . '</p>';
-
-    $current_url = esc_url(add_query_arg(null, null));
-    echo '<div style="display: flex; justify-content: space-between; align-items: center;">';
-    echo '<a href="' . esc_url(add_query_arg('week_offset', $week_offset - 1, $current_url)) . '" style="text-decoration: none;">';
-    echo '<span class="dashicons dashicons-arrow-left-alt2"></span>';
-    echo '</a>';
-    echo '<a href="' . esc_url(add_query_arg('week_offset', $week_offset + 1, $current_url)) . '" style="text-decoration: none;">';
-    echo '<span class="dashicons dashicons-arrow-right-alt2"></span>';
-    echo '</a>';
-    echo '</div>';
+		$grouped_schedule[$day_pl]['hours'][$hour][] = [
+			'name'       => esc_html( $row->streamer_name ),
+			'link'       => esc_url( $row->streamer_link ),
+			'avatar_url' => esc_url( $row->streamer_avatar_url ),
+		];
+	}
 
 
-    if (!empty($grouped_schedule)) {
-        foreach ($grouped_schedule as $day => $hours) {
-            echo '<div class="koi-schedule-day">';
-            echo '<h3 class="koi-schedule-day-title"><span class="dashicons dashicons-calendar"></span> ' . esc_html(mb_strtoupper($day, 'UTF-8')) . ' - ' . date('d.m', strtotime(array_search($day, $days_of_week) . ' this week')) . '</h3>';
-            foreach ($hours as $hour => $streamers) {
-                echo '<div class="koi-schedule-time-slot">';
-                echo '<span class="koi-schedule-time"><span class="dashicons dashicons-clock"></span> ' . esc_html($hour) . '</span>';
-                echo '<div class="koi-streamer-list">';
-                foreach ($streamers as $streamer) {
-                    echo '<div class="koi-schedule-streamer">';
-                    echo '<span class="koi-streamer-avatar" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
-                    echo '<span class="koi-streamer-name">' . $streamer['name'] . '</span>';
-                    echo '</div>';
-                }
-                echo '</div>';
-                echo '</div>';
-            }
-            echo '</div>';
-        }
-    } else {
-        echo '<p>No schedules found.</p>';
-    }
-    echo '</div>';
+	ob_start();
+	echo '<div class="koi-schedule-container">';
+	echo '<p class="koi-schedule-date-range"><span class="dashicons dashicons-calendar-alt"></span> ' . $start_of_week . ' - ' . $end_of_week . '</p>';
 
-    return ob_get_clean();
+	$current_url = esc_url(add_query_arg(null, null));
+	echo '<div style="display: flex; justify-content: space-between; align-items: center;">';
+	echo '<a href="' . esc_url(add_query_arg('week_offset', $week_offset - 1, $current_url)) . '" style="text-decoration: none;">';
+	echo '<span class="dashicons dashicons-arrow-left-alt2"></span>';
+	echo '</a>';
+	echo '<a href="' . esc_url(add_query_arg('week_offset', $week_offset + 1, $current_url)) . '" style="text-decoration: none;">';
+	echo '<span class="dashicons dashicons-arrow-right-alt2"></span>';
+	echo '</a>';
+	echo '</div>';
+
+
+	if (!empty($grouped_schedule)) {
+		echo '<div class="koi-schedule-week">';
+		foreach ($grouped_schedule as $day_name_pl => $day_data) {
+			$day_display_date = $day_data['display_date'];
+			$hours_of_day = $day_data['hours'];
+
+			echo '<div class="koi-schedule-day">';
+			echo '<h3 class="koi-schedule-day-title"><span class="dashicons dashicons-calendar"></span> ' . esc_html(mb_strtoupper($day_name_pl, 'UTF-8')) . ' - ' . esc_html($day_display_date) . '</h3>';
+
+			ksort($hours_of_day);
+
+			foreach ($hours_of_day as $hour_key => $streamers_in_slot) {
+				echo '<div class="koi-schedule-time-slot">';
+				echo '<h4 class="koi-schedule-hour">' . esc_html($hour_key) . '</h4>';
+				echo '<div class="koi-streamer-list">';
+
+				$streamer_counter = 0;
+				$total_streamers_this_slot = count($streamers_in_slot);
+
+				foreach ($streamers_in_slot as $streamer) {
+					if ($streamer_counter % 2 === 0) {
+						if ($streamer_counter > 0) {
+							echo '</div>';
+						}
+						echo '<div class="koi-streamer-row">';
+					}
+
+					$style = ($total_streamers_this_slot === 1) ? 'style="width: calc(50% - 5px);"' : '';
+
+					echo '<div class="koi-schedule-streamer" ' . $style . '>';
+					echo '<span class="koi-streamer-avatar" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
+					echo '</div>';
+
+					$streamer_counter++;
+				}
+
+				if ($streamer_counter > 0) {
+					echo '</div>';
+				}
+
+				echo '</div>';
+				echo '</div>';
+			}
+			echo '</div>';
+		}
+		echo '</div>';
+	} else {
+		echo '<div class="koi-schedule-no-streamers">';
+		echo '<p><span class="dashicons dashicons-warning"></span> Brak zaplanowanych streamów w tym tygodniu.</p>';
+		echo '</div>';
+	}
+
+	return ob_get_clean();
 }
 
 add_shortcode( 'koi_schedule_display', 'display_schedule' );
