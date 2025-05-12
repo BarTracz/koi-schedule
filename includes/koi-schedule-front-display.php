@@ -74,14 +74,13 @@ function display_schedule(): false|string {
 
 	ob_start();
 	echo '<div class="koi-schedule-container">';
-	echo '<p class="koi-schedule-date-range"><span class="dashicons dashicons-calendar-alt"></span> ' . $start_of_week . ' - ' . $end_of_week . '</p>';
-
 	$current_url = esc_url(add_query_arg(null, null));
-	echo '<div style="display: flex; justify-content: space-between; align-items: center;">';
-	echo '<a href="' . esc_url(add_query_arg('week_offset', $week_offset - 1, $current_url)) . '" style="text-decoration: none;">';
+	echo '<div class="koi-schedule-date">';
+	echo '<a class="koi-schedule-date-arrow" href="' . esc_url(add_query_arg('week_offset', $week_offset - 1, $current_url)) . '" style="text-decoration: none;">';
 	echo '<span class="dashicons dashicons-arrow-left-alt2"></span>';
 	echo '</a>';
-	echo '<a href="' . esc_url(add_query_arg('week_offset', $week_offset + 1, $current_url)) . '" style="text-decoration: none;">';
+	echo '<p class="koi-schedule-date-range">' . $start_of_week . ' - ' . $end_of_week . '</p>';
+	echo '<a class="koi-schedule-date-arrow" href="' . esc_url(add_query_arg('week_offset', $week_offset + 1, $current_url)) . '" style="text-decoration: none;">';
 	echo '<span class="dashicons dashicons-arrow-right-alt2"></span>';
 	echo '</a>';
 	echo '</div>';
@@ -117,7 +116,7 @@ function display_schedule(): false|string {
 					$style = ($total_streamers_this_slot === 1) ? 'style="width: calc(50% - 5px);"' : '';
 
 					echo '<div class="koi-schedule-streamer" ' . $style . '>';
-					echo '<a href="' . esc_url($streamer['link']) . '" target="_blank" rel="noopener noreferrer">';
+					echo '<a href="' . esc_url($streamer['link']) . '" target="_blank">';
 					echo '<span class="koi-streamer-avatar" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
 					echo '</a>';
 					echo '</div>';

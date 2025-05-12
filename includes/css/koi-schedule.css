@@ -1,26 +1,34 @@
 /* General Container Styles */
 .koi-schedule-container {
-    background-color: rgba(60, 200, 212, 0.3);
-    padding: 20px;
+    background: transparent;
+    padding: 20px 20px 20px 20px;
     border-radius: 8px;
-    color: #333;
-    width: 80%;
-    max-width: 1200px;
-    margin: 0 auto;
+    min-width: 350px;
+    max-width: 70%;
+    margin: 0;
     box-sizing: border-box;
 }
 
 /* Title and Date Range Styles */
-.koi-schedule-title {
-    color: #000000;
-    text-align: center;
-    margin-bottom: 10px;
+.koi-schedule-date {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e1f0ff;
+    border: 2px solid #008cff;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
 }
 
 .koi-schedule-date-range {
     color: #000000;
     text-align: center;
-    margin-bottom: 20px;
+    font-size: 1.8em;
+    margin-bottom: 0;
+    margin-top: 0;
+    font-weight: normal;
+    align-items: center;
 }
 
 .koi-schedule-date-range .dashicons {
@@ -29,11 +37,16 @@
     margin-right: 5px;
 }
 
+.koi-schedule-date-arrow {
+    display: flex;
+}
+
 /* Day Section Styles */
 .koi-schedule-day {
     margin-bottom: 20px;
-    padding: 15px;
-    background-color: rgb(255, 255, 255);
+    padding: 10px;
+    background-color: #e1f0ff;
+    border: 2px solid #008cff;
     border-radius: 8px;
 }
 
@@ -41,7 +54,7 @@
     color: #000000;
     margin-top: 0;
     margin-bottom: 10px;
-    font-size: 1em;
+    font-size: 1.6em;
     text-align: center;
 }
 
@@ -83,11 +96,6 @@
 
 .koi-schedule-streamer:last-child {
     margin-right: 0;
-}
-
-.koi-schedule-streamer a {
-    color: #007bff;
-    text-decoration: none;
 }
 
 .koi-schedule-streamer a:hover {
@@ -133,10 +141,10 @@
 
 /* Hour Styles */
 .koi-schedule-hour {
-    font-size: 1em;
-    font-weight: bold;
+    font-size: 1.6em;
+    font-weight: normal;
     color: #000000;
     margin-bottom: 10px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #008cff;
     padding-bottom: 5px;
 }
