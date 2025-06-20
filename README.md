@@ -5,3 +5,4 @@ How to use:<br>
 -turn on plugin in wordpress admin page<br>
 -add streamers in Koi Streamers tab<br>
 -add schedule entries in Koi Schedule tab<br>
+-graphic elements on schedule are added by media - Title just streamer name
