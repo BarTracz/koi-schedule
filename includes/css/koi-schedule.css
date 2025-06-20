@@ -1,30 +1,33 @@
-/* General Container Styles */
+/* =========================
+   Ogólne style kontenera
+   ========================= */
 .koi-schedule-container {
-    background: transparent;
+    background: radial-gradient(circle, rgb(255, 255, 255) 0%, rgb(245, 245, 245) 100%);
     padding: 20px 20px 20px 20px;
     border-radius: 8px;
     min-width: 350px;
-    max-width: 70%;
-    margin: 0;
+    max-width: 90%;
     box-sizing: border-box;
 }
 
-/* Title and Date Range Styles */
-.koi-schedule-date {
+/* =========================
+   Nawigacja daty i zakresu
+   ========================= */
+.koi-schedule-date-navigation {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #e1f0ff;
+    background-color: #ffffff;
     border: 2px solid #008cff;
     border-radius: 8px;
+    padding: 10px;
     margin-bottom: 20px;
-    padding: 15px;
 }
 
 .koi-schedule-date-range {
     color: #000000;
     text-align: center;
-    font-size: 1.8em;
+    font-size: 1.4em;
     margin-bottom: 0;
     margin-top: 0;
     font-weight: normal;
@@ -39,22 +42,33 @@
 
 .koi-schedule-date-arrow {
     display: flex;
+    text-decoration: none;
+}
+.koi-schedule-date-arrow:focus {
+    outline: none;
+    box-shadow: none;
 }
 
-/* Day Section Styles */
+/* =========================
+   Sekcja dnia tygodnia
+   ========================= */
 .koi-schedule-day {
-    margin-bottom: 20px;
     padding: 10px;
-    background-color: #e1f0ff;
+    margin-bottom: 20px;
+    background-color: #ffffff;
     border: 2px solid #008cff;
     border-radius: 8px;
+}
+
+.koi-schedule-day:last-child {
+    margin-bottom: 0;
 }
 
 .koi-schedule-day-title {
     color: #000000;
     margin-top: 0;
     margin-bottom: 10px;
-    font-size: 1.6em;
+    font-size: 1.4em;
     text-align: center;
 }
 
@@ -64,7 +78,9 @@
     margin-right: 5px;
 }
 
-/* Time Slot Styles */
+/* =========================
+   Sloty godzinowe
+   ========================= */
 .koi-schedule-time-slot {
     display: block;
     /* padding: 5px 0; */
@@ -88,10 +104,12 @@
     vertical-align: middle;
 }
 
-/* Streamer Styles */
+/* =========================
+   Streamerzy
+   ========================= */
 .koi-schedule-streamer {
     margin-right: 10px;
-    width: 50%;
+    width: 100%;
 }
 
 .koi-schedule-streamer:last-child {
@@ -117,7 +135,9 @@
     color: #000000;
 }
 
-/* Streamer List and Row Styles */
+/* =========================
+   Lista i rzędy streamerów
+   ========================= */
 .koi-streamer-list {
     align-items: center;
     display: flex;
@@ -139,12 +159,128 @@
     text-align: center;
 }
 
-/* Hour Styles */
+/* =========================
+   Godziny
+   ========================= */
 .koi-schedule-hour {
-    font-size: 1.6em;
+    font-size: 1.4em;
     font-weight: normal;
     color: #000000;
     margin-bottom: 10px;
+    margin-top: 10px;
     border-bottom: 1px solid #008cff;
-    padding-bottom: 5px;
+    padding-bottom: 4px;
+}
+
+/* =========================
+   Toolbar filtrów
+   ========================= */
+.koi-schedule-filters-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    flex-direction: column;
+    min-width: 350px;
+    max-width: 90%;
+    background: radial-gradient(circle, rgb(255, 255, 255) 0%, rgb(245, 245, 245) 100%);
+    border-radius: 8px;
+    border: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+.koi-streamer-filters,
+.koi-day-filter,
+.koi-hour-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.koi-streamer-filters span,
+.koi-day-filter label,
+.koi-hour-filter label {
+    margin-right: 5px;
+}
+
+.koi-day-filter select,
+.koi-hour-filter select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    min-width: 150px;
+}
+
+.koi-streamer-filters {
+    flex-wrap: wrap;
+}
+
+/* =========================
+   Kolumny tygodnia
+   ========================= */
+.koi-schedule-week-columns {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+.koi-schedule-week-column {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =========================
+   Responsywność
+   ========================= */
+@media (max-width: 900px) {
+    .koi-schedule-week-columns {
+        flex-direction: column;
+        gap: 0;
+    }
+    .koi-schedule-week-column {
+        gap: 0;
+    }
+}
+
+/* =========================
+   Przycisk filtra
+   ========================= */
+.koi-filter-button {
+    padding: 5px 10px 5px 10px;
+    background-color: #ffffff;
+    border: 2px solid #008cff;
+    border-radius: 8px;
+    font-size: 0.8em;
+    text-decoration: none;
+}
+.koi-filter-button.active {
+    background-color: #008cff;
+    color: #ffffff;
+}
+.koi-filter-button:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* =========================
+   Brak streamów w dniu
+   ========================= */
+.koi-schedule-no-streams-day {
+    text-align: center;
+    color: #000000;
+    font-size: 1.2em;
+    margin: 10px 0 0 10px;
+}
+
+.koi-schedule-no-streams-day-img {
+    width: 64px;
+    height: 64px;
+    display: block;
+    margin: 0 auto;
 }
