@@ -5,9 +5,6 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-// Ustawienie strefy czasowej
-date_default_timezone_set('Europe/Warsaw');
-
 /**
  * Wyświetla harmonogram streamerów z filtrami.
  *

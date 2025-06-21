@@ -275,14 +275,6 @@ function schedule_edit_entry_form(): void
 
 	echo '</form>';
 	echo '</div>';
-
-	// (Przykładowy JS do zaznaczania wszystkich, jeśli byłby checkbox)
-	echo '<script>
-        document.getElementById("select-all").addEventListener("click", function() {
-            const checkboxes = document.querySelectorAll("input[name=\'bulk_delete_ids[]\']");
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        });
-    </script>';
 }
 
 /**
