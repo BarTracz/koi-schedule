@@ -141,7 +141,7 @@ function streamers_edit_entry_form() {
 	echo '<h1>Edit Streamers</h1>';
 
 	if ($streamers) {
-		echo '<table class="wp-list-table widefat fixed striped">';
+		echo '<table class="wp-list-table widefat striped">';
 		echo '<thead><tr><th>Name</th><th>Link</th><th>Avatar</th><th>Actions</th></tr></thead>';
 		echo '<tbody>';
 		foreach ($streamers as $streamer) {
