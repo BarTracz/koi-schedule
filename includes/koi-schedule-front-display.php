@@ -124,7 +124,7 @@ function display_schedule(): false|string {
 
 	// Filtr dni tygodnia
 	if (!empty($all_streamers_for_buttons)) {
-		echo '<div class="koi-day-filter">';
+		echo '<div class="koi-day-filters">';
 		$day_btn_base_args = ['week_offset' => $week_offset, 'streamer_filter_id' => $selected_streamer_id];
 		if ($selected_hour) { $day_btn_base_args['hour_filter'] = $selected_hour; }
 		foreach ($days_for_select as $day_value => $day_name) {
@@ -154,7 +154,7 @@ function display_schedule(): false|string {
 	echo '</div>';
 
 	// Filtr godzin
-	echo '<div class="koi-hour-filter">';
+	echo '<div class="koi-hour-filters">';
 	$hour_select_base_args = ['week_offset' => $week_offset, 'streamer_filter_id' => $selected_streamer_id];
 	if ($selected_day) { $hour_select_base_args['day_filter'] = $selected_day; }
 	echo '<button type="button" class="koi-filter-button' . ($selected_hour === '' ? ' active' : '') . '" onclick="window.location.href=\'' . esc_url(add_query_arg($hour_select_base_args, $base_page_url)) . '\'">Wszystkie godziny</button>';

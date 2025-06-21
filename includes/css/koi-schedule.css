@@ -6,8 +6,9 @@
     padding: 20px 20px 20px 20px;
     border-radius: 8px;
     min-width: 350px;
-    max-width: 90%;
+    max-width: 100%;
     box-sizing: border-box;
+    margin-top: 20px;
 }
 
 /* =========================
@@ -179,45 +180,38 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    padding: 20px;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
     flex-direction: column;
     min-width: 350px;
-    max-width: 90%;
+    max-width: 100%;
     background: radial-gradient(circle, rgb(255, 255, 255) 0%, rgb(245, 245, 245) 100%);
-    border-radius: 8px;
     border: 0;
-    padding: 20px;
+    border-radius: 8px;
     box-sizing: border-box;
-    margin-bottom: 20px;
 }
 
 .koi-streamer-filters,
-.koi-day-filter,
-.koi-hour-filter {
+.koi-day-filters,
+.koi-hour-filters {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
 }
 
 .koi-streamer-filters span,
-.koi-day-filter label,
-.koi-hour-filter label {
+.koi-day-filters label,
+.koi-hour-filters label {
     margin-right: 5px;
 }
 
-.koi-day-filter select,
-.koi-hour-filter select {
+.koi-day-filters select,
+.koi-hour-filters select {
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 3px;
     min-width: 150px;
-}
-
-.koi-streamer-filters {
-    flex-wrap: wrap;
 }
 
 /* =========================
@@ -233,6 +227,10 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
+}
+.koi-schedule-week-column:last-child {
+    margin-bottom: 0;
 }
 
 /* =========================

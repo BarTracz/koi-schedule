@@ -220,7 +220,7 @@ function schedule_edit_entry_form(): void
 	echo '</p>';
 
 	if ($entries) {
-		echo '<table class="wp-list-table widefat fixed striped">';
+		echo '<table class="wp-list-table widefat striped">';
 		echo '<thead><tr><th>Streamer</th><th>Date</th><th>Time</th><th>Actions</th></tr></thead>';
 		echo '<tbody>';
 		foreach ($entries as $entry) {
