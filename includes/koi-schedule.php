@@ -34,17 +34,19 @@ function create_koi_schedule_table(): void
 
 function update_koi_schedule_table(): void
 {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'koi_schedule';
+	global $wpdb;
+	$table_name = $wpdb->prefix . 'koi_schedule';
+	$events_table = $wpdb->prefix . 'koi_events';
 
-    // Sprawdzenie, czy kolumna 'event' istnieje
-    if ($wpdb->get_var("SHOW COLUMNS FROM $table_name LIKE 'event'") === null) {
-        $wpdb->query("ALTER TABLE $table_name ADD COLUMN event ENUM('collab', 'karaoke', 'karaoke-collab') DEFAULT NULL");
-    }
+	// Sprawdzenie, czy kolumna 'event_id' istnieje
+	if ($wpdb->get_var("SHOW COLUMNS FROM $table_name LIKE 'event_id'") === null) {
+		$wpdb->query("ALTER TABLE $table_name ADD COLUMN event_id mediumint(9) NOT NULL DEFAULT 1");
+		$wpdb->query("ALTER TABLE $table_name ADD FOREIGN KEY (event_id) REFERENCES $events_table(id) ON DELETE RESTRICT");
+	}
 
-    if (!empty($wpdb->last_error)) {
-        error_log('Database Error: ' . $wpdb->last_error);
-    }
+	if (!empty($wpdb->last_error)) {
+		error_log('Database Error: ' . $wpdb->last_error);
+	}
 }
 
 /**
@@ -56,7 +58,9 @@ function schedule_entry_form(): false|string
 {
 	global $wpdb;
 	$streamers_table = $wpdb->prefix . 'koi_streamers';
+    $events_table = $wpdb->prefix . 'koi_events';
 	$streamers = $wpdb->get_results("SELECT * FROM $streamers_table");
+    $events = $wpdb->get_results("SELECT id, name FROM $events_table");
 
 	ob_start();
 	?>
@@ -90,11 +94,12 @@ function schedule_entry_form(): false|string
                     <td><input type="date" id="date_0" name="schedule_entries[0][date]" required></td>
                     <td><input type="time" id="time_0" name="schedule_entries[0][time]" required></td>
                     <td>
-                        <select name="schedule_entries[0][event]">
-                            <option value="">--</option>
-                            <option value="collab">Collab</option>
-                            <option value="karaoke">Karaoke</option>
-                            <option value="karaoke-collab">Karaoke collab</option>
+                        <select name="schedule_entries[0][event_id]">
+                            <?php foreach ($events as $event): ?>
+                                <option value="<?php echo esc_attr($event->id); ?>">
+                                    <?php echo esc_html($event->name); ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </td>
                     <td><button type="button" class="remove-entry button button-secondary">Remove</button></td>
@@ -128,11 +133,12 @@ function schedule_entry_form(): false|string
                 <td><input type="date" id="date_${index}" name="schedule_entries[${index}][date]" required></td>
                 <td><input type="time" id="time_${index}" name="schedule_entries[${index}][time]" required></td>
                 <td>
-                    <select name="schedule_entries[${index}][event]">
-                        <option value="">--</option>
-                        <option value="collab">Collab</option>
-                        <option value="karaoke">Karaoke</option>
-                        <option value="karaoke-collab">Karaoke collab</option>
+                    <select name="schedule_entries[${index}][event_id]">
+                        <?php foreach ($events as $event): ?>
+                            <option value="<?php echo esc_attr($event->id); ?>">
+                                <?php echo esc_html($event->name); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 <td><button type="button" class="remove-entry button button-secondary">Remove</button></td>
             </tr>
@@ -172,7 +178,7 @@ function schedule_entry_form_handler(): void
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-schedule'));
+			wp_die(esc_html__('No permissions.', 'koi-schedule'));
 		}
 
 		$streamer_id = intval($_POST['streamer_id']);
@@ -187,28 +193,28 @@ function schedule_entry_form_handler(): void
 			$time = sanitize_text_field($entry['time']);
 			// Walidacja daty i czasu
 			if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^\d{2}:\d{2}$/', $time)) {
-				echo '<div class="error"><p>' . esc_html__('Nieprawidłowy format daty lub czasu.', 'koi-schedule') . '</p></div>';
+				echo '<div class="error"><p>' . esc_html__('Invalid date/time format.', 'koi-schedule') . '</p></div>';
 				continue;
 			}
 
 			$datetime = $date . ' ' . $time;
 
-			$event = isset($entry['event']) ? sanitize_text_field($entry['event']) : null;
+			$event_id = isset($entry['event_id']) ? intval($entry['event_id']) : null;
 			$wpdb->insert($table_name, array(
 				'time' => $datetime,
 				'streamer_id' => $streamer_id,
-				'event' => $event
+				'event_id' => $event_id
 			), array(
 				'%s',
 				'%d',
-				'%s'
+				'%d'
 			));
 			if ($wpdb->insert_id) {
 				$success = true;
 			}
 		}
 		if ($success) {
-			echo '<div class="updated"><p>' . esc_html__('Entry added successfully!', 'koi-schedule') . '</p></div>';
+			echo '<div class="updated"><p>' . esc_html__('Entry added successfully', 'koi-schedule') . '</p></div>';
 		} else {
 			error_log('Database Insert Error: ' . $wpdb->last_error);
 			echo '<div class="error"><p>' . esc_html__('Failed to add entry. Please try again.', 'koi-schedule') . '</p></div>';
@@ -224,6 +230,8 @@ function schedule_edit_entry_form(): void
 	global $wpdb;
 	$schedule_table = $wpdb->prefix . 'koi_schedule';
 	$streamers_table = $wpdb->prefix . 'koi_streamers';
+	$events_table = $wpdb->prefix . 'koi_events';
+	$events = $wpdb->get_results("SELECT id, name FROM $events_table");
 
 	$items_per_page = 30;
 	$current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
@@ -235,7 +243,7 @@ function schedule_edit_entry_form(): void
 	$total_items = $wpdb->get_var("SELECT COUNT(*) FROM $schedule_table");
 
 	$entries = $wpdb->get_results($wpdb->prepare("
-        SELECT s.id, s.time, s.streamer_id, s.event, st.name AS streamer_name
+        SELECT s.id, s.time, s.streamer_id, s.event_id, st.name AS streamer_name
         FROM $schedule_table s
         INNER JOIN $streamers_table st ON s.streamer_id = st.id
         ORDER BY $sort_by $order
@@ -272,13 +280,12 @@ function schedule_edit_entry_form(): void
 			echo '</td>';
 			echo '<td><input type="date" name="date" value="' . $date . '" required></td>';
 			echo '<td><input type="time" name="time" value="' . $time . '" required></td>';
-			echo '<td><select name="event">
-                <option value="">--</option>
-                <option value="collab" ' . selected($entry->event, 'collab', false) . '>Collab</option>
-                <option value="karaoke" ' . selected($entry->event, 'karaoke', false) . '>Karaoke</option>
-                <option value="karaoke-collab" ' . selected($entry->event, 'karaoke-collab', false) . '>Karaoke collab</option>
-                </select>
-            </td>';
+			echo '<td><select name="event_id">';
+			foreach ($events as $event) {
+				$selected = ($event->id == $entry->event_id) ? 'selected' : '';
+				echo '<option value="' . esc_attr($event->id) . '" ' . $selected . '>' . esc_html($event->name) . '</option>';
+			}
+			echo '</select></td>';
 			echo '<td>';
 			echo '<input type="hidden" name="entry_id" value="' . esc_attr($entry->id) . '">';
 			echo '<button type="submit" name="schedule_action" value="edit_schedule" class="button button-primary">Update</button> ';
@@ -335,7 +342,7 @@ function schedule_edit_entry_form_handler(): void
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-schedule'));
+			wp_die(esc_html__('No permissions.', 'koi-schedule'));
 		}
 
 		$delete_older_date = sanitize_text_field($_POST['delete_older_date']);
@@ -345,7 +352,7 @@ function schedule_edit_entry_form_handler(): void
 				$delete_older_date . ' 00:00:00'
 			));
 			if ($result !== false) {
-				echo '<div class="updated"><p>' . esc_html__('Entries older than ', 'koi-schedule') . esc_html($delete_older_date) . esc_html__(' deleted successfully!', 'koi-schedule') . '</p></div>';
+				echo '<div class="updated"><p>' . esc_html__('Entries older than ', 'koi-schedule') . esc_html($delete_older_date) . esc_html__(' deleted successfully', 'koi-schedule') . '</p></div>';
 			} else {
 				echo '<div class="error"><p>' . esc_html__('Database error: ', 'koi-schedule') . esc_html($wpdb->last_error) . '</p></div>';
 			}
@@ -363,31 +370,25 @@ function schedule_edit_entry_form_handler(): void
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-schedule'));
+			wp_die(esc_html__('No permissions.', 'koi-schedule'));
 		}
 
 		$entry_id = intval($_POST['entry_id']);
 		$streamer_id = intval($_POST['streamer_id']);
 		$date = sanitize_text_field($_POST['date']);
 		$time = sanitize_text_field($_POST['time']);
-
-		if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^\d{2}:\d{2}$/', $time)) {
-			echo '<div class="error"><p>' . esc_html__('Nieprawidłowy format daty lub czasu.', 'koi-schedule') . '</p></div>';
-			return;
-		}
-
 		$datetime = $date . ' ' . $time;
-
-		$event = isset($_POST['event']) ? sanitize_text_field($_POST['event']) : null;
+		$event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : null;
 		$result = $wpdb->update($schedule_table,
-			['time' => $datetime, 'streamer_id' => $streamer_id, 'event' => $event],
+			['time' => $datetime, 'streamer_id' => $streamer_id, 'event_id' => $event_id],
 			['id' => $entry_id],
-			['%s', '%d', '%s'],
-			['%d']
-		);
+			['%s', '%d', '%d'],
+            ['%d']
+        );
+
 
 		if ($result !== false) {
-			echo '<div class="updated"><p>' . esc_html__('Schedule entry updated successfully!', 'koi-schedule') . '</p></div>';
+			echo '<div class="updated"><p>' . esc_html__('Schedule entry updated successfully', 'koi-schedule') . '</p></div>';
 		} else {
 			echo '<div class="error"><p>' . esc_html__('Database error: ', 'koi-schedule') . esc_html($wpdb->last_error) . '</p></div>';
 		}
@@ -402,7 +403,7 @@ function schedule_edit_entry_form_handler(): void
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-schedule'));
+			wp_die(esc_html__('No permissions.', 'koi-schedule'));
 		}
 
 		$entry_id = intval($_POST['entry_id']);
@@ -414,7 +415,7 @@ function schedule_edit_entry_form_handler(): void
 		);
 
 		if ($result !== false) {
-			echo '<div class="updated"><p>' . esc_html__('Schedule entry deleted successfully!', 'koi-schedule') . '</p></div>';
+			echo '<div class="updated"><p>' . esc_html__('Schedule entry deleted successfully', 'koi-schedule') . '</p></div>';
 		} else {
 			echo '<div class="error"><p>' . esc_html__('Database error: ', 'koi-schedule') . esc_html($wpdb->last_error) . '</p></div>';
 		}
@@ -433,7 +434,7 @@ function schedule_add_menu_page(): void
 		'koi_schedule',
 		'schedule_entry_page',
 		'dashicons-calendar',
-		20
+		2
 	);
 
 	add_submenu_page(
