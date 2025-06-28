@@ -32,6 +32,21 @@ function create_koi_schedule_table(): void
 	}
 }
 
+function update_koi_schedule_table(): void
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'koi_schedule';
+
+    // Sprawdzenie, czy kolumna 'event' istnieje
+    if ($wpdb->get_var("SHOW COLUMNS FROM $table_name LIKE 'event'") === null) {
+        $wpdb->query("ALTER TABLE $table_name ADD COLUMN event ENUM('collab', 'karaoke', 'karaoke-collab') DEFAULT NULL");
+    }
+
+    if (!empty($wpdb->last_error)) {
+        error_log('Database Error: ' . $wpdb->last_error);
+    }
+}
+
 /**
  * Formularz dodawania wpisów do harmonogramu.
  *
@@ -68,11 +83,20 @@ function schedule_entry_form(): false|string
                 <tr>
                     <th>Date</th>
                     <th>Time</th>
+                    <th>Event</th>
                     <th>Action</th>
                 </tr>
                 <tr>
                     <td><input type="date" id="date_0" name="schedule_entries[0][date]" required></td>
                     <td><input type="time" id="time_0" name="schedule_entries[0][time]" required></td>
+                    <td>
+                        <select name="schedule_entries[0][event]">
+                            <option value="">--</option>
+                            <option value="collab">Collab</option>
+                            <option value="karaoke">Karaoke</option>
+                            <option value="karaoke-collab">Karaoke collab</option>
+                        </select>
+                    </td>
                     <td><button type="button" class="remove-entry button button-secondary">Remove</button></td>
                 </tr>
             </table>
@@ -97,11 +121,19 @@ function schedule_entry_form(): false|string
             <tr>
                 <th>Date</th>
                 <th>Time</th>
+                <th>Event</th>
                 <th>Action</th>
             </tr>
             <tr>
                 <td><input type="date" id="date_${index}" name="schedule_entries[${index}][date]" required></td>
                 <td><input type="time" id="time_${index}" name="schedule_entries[${index}][time]" required></td>
+                <td>
+                    <select name="schedule_entries[${index}][event]">
+                        <option value="">--</option>
+                        <option value="collab">Collab</option>
+                        <option value="karaoke">Karaoke</option>
+                        <option value="karaoke-collab">Karaoke collab</option>
+                    </select>
                 <td><button type="button" class="remove-entry button button-secondary">Remove</button></td>
             </tr>
         `;
@@ -161,14 +193,16 @@ function schedule_entry_form_handler(): void
 
 			$datetime = $date . ' ' . $time;
 
+			$event = isset($entry['event']) ? sanitize_text_field($entry['event']) : null;
 			$wpdb->insert($table_name, array(
 				'time' => $datetime,
-				'streamer_id' => $streamer_id
-			),
-				array(
-					'%s',
-					'%d'
-				));
+				'streamer_id' => $streamer_id,
+				'event' => $event
+			), array(
+				'%s',
+				'%d',
+				'%s'
+			));
 			if ($wpdb->insert_id) {
 				$success = true;
 			}
@@ -201,7 +235,7 @@ function schedule_edit_entry_form(): void
 	$total_items = $wpdb->get_var("SELECT COUNT(*) FROM $schedule_table");
 
 	$entries = $wpdb->get_results($wpdb->prepare("
-        SELECT s.id, s.time, s.streamer_id, st.name AS streamer_name
+        SELECT s.id, s.time, s.streamer_id, s.event, st.name AS streamer_name
         FROM $schedule_table s
         INNER JOIN $streamers_table st ON s.streamer_id = st.id
         ORDER BY $sort_by $order
@@ -221,7 +255,7 @@ function schedule_edit_entry_form(): void
 
 	if ($entries) {
 		echo '<table class="wp-list-table widefat striped">';
-		echo '<thead><tr><th>Streamer</th><th>Date</th><th>Time</th><th>Actions</th></tr></thead>';
+		echo '<thead><tr><th>Streamer</th><th>Date</th><th>Time</th><th>Event</th><th>Actions</th></tr></thead>';
 		echo '<tbody>';
 		foreach ($entries as $entry) {
 			$date = esc_attr(date('Y-m-d', strtotime($entry->time)));
@@ -238,6 +272,13 @@ function schedule_edit_entry_form(): void
 			echo '</td>';
 			echo '<td><input type="date" name="date" value="' . $date . '" required></td>';
 			echo '<td><input type="time" name="time" value="' . $time . '" required></td>';
+			echo '<td><select name="event">
+                <option value="">--</option>
+                <option value="collab" ' . selected($entry->event, 'collab', false) . '>Collab</option>
+                <option value="karaoke" ' . selected($entry->event, 'karaoke', false) . '>Karaoke</option>
+                <option value="karaoke-collab" ' . selected($entry->event, 'karaoke-collab', false) . '>Karaoke collab</option>
+                </select>
+            </td>';
 			echo '<td>';
 			echo '<input type="hidden" name="entry_id" value="' . esc_attr($entry->id) . '">';
 			echo '<button type="submit" name="schedule_action" value="edit_schedule" class="button button-primary">Update</button> ';
@@ -337,10 +378,11 @@ function schedule_edit_entry_form_handler(): void
 
 		$datetime = $date . ' ' . $time;
 
+		$event = isset($_POST['event']) ? sanitize_text_field($_POST['event']) : null;
 		$result = $wpdb->update($schedule_table,
-			['time' => $datetime, 'streamer_id' => $streamer_id],
+			['time' => $datetime, 'streamer_id' => $streamer_id, 'event' => $event],
 			['id' => $entry_id],
-			['%s', '%d'],
+			['%s', '%d', '%s'],
 			['%d']
 		);
 

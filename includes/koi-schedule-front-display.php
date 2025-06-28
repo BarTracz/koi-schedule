@@ -70,7 +70,8 @@ function display_schedule(): false|string {
 			DATE_FORMAT(s.time, '%%Y-%%m-%%d') AS date_formatted,
 			st.name AS streamer_name,
 			st.link AS streamer_link,
-			st.avatar_url AS streamer_avatar_url
+			st.avatar_url AS streamer_avatar_url,
+			s.event AS event
 		FROM {$schedule_table} s
 		INNER JOIN {$streamers_table} st ON s.streamer_id = st.id
 	";
@@ -108,6 +109,7 @@ function display_schedule(): false|string {
 			'name'       => esc_html($row->streamer_name),
 			'link'       => esc_url($row->streamer_link),
 			'avatar_url' => esc_url($row->streamer_avatar_url),
+			'event'      => esc_html($row->event),
 		];
 	}
 
@@ -293,6 +295,22 @@ function column($day_name_pl, array $grouped_schedule, array $week_dates): void 
 				}
 				echo '<div class="koi-schedule-streamer">';
 				echo '<a href="' . esc_url($streamer['link']) . '" target="_blank" title="' . esc_attr($streamer['name']) . '">';
+				echo '<span class="koi-streamer-info">';
+				if (!empty($streamer['event'])) {
+					echo '<span class="koi-streamer-event">';
+					switch ($streamer['event']) {
+						case 'karaoke':
+							echo '<span class="koi-streamer-event-icon" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
+							break;
+						case 'collab':
+							echo '<span class="koi-streamer-event-icon" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
+							break;
+						case 'karaoke-collab':
+							echo '<span class="koi-streamer-event-icon" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
+							break;
+					}
+					echo '</span>';
+				}
 				echo '<span class="koi-streamer-avatar" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
 				echo '</a>';
 				echo '</div>';
