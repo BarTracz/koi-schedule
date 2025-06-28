@@ -64,15 +64,20 @@ function display_schedule(): false|string {
 	}
 	$main_sql_order_by = "ORDER BY s.time ASC";
 
+	$events_table = $wpdb->prefix . 'koi_events';
 	$main_sql_select_from = "
-		SELECT
-			DATE_FORMAT(s.time, '%%H:%%i') AS time_formatted,
-			DATE_FORMAT(s.time, '%%Y-%%m-%%d') AS date_formatted,
-			st.name AS streamer_name,
-			st.link AS streamer_link,
-			st.avatar_url AS streamer_avatar_url
+	SELECT
+		DATE_FORMAT(s.time, '%%H:%%i') AS time_formatted,
+		DATE_FORMAT(s.time, '%%Y-%%m-%%d') AS date_formatted,
+		st.name AS streamer_name,
+		st.link AS streamer_link,
+		st.avatar_url AS streamer_avatar_url,
+		e.id AS event_id,
+		e.name AS event_name,
+		e.icon_url AS event_icon_url
 		FROM {$schedule_table} s
 		INNER JOIN {$streamers_table} st ON s.streamer_id = st.id
+		LEFT JOIN {$events_table} e ON s.event_id = e.id
 	";
 
 	// Pobranie wyników głównego zapytania
@@ -105,9 +110,12 @@ function display_schedule(): false|string {
 			$grouped_schedule[$day_pl]['hours'][$hour] = [];
 		}
 		$grouped_schedule[$day_pl]['hours'][$hour][] = [
-			'name'       => esc_html($row->streamer_name),
-			'link'       => esc_url($row->streamer_link),
-			'avatar_url' => esc_url($row->streamer_avatar_url),
+			'name'        => esc_html($row->streamer_name),
+			'link'        => esc_url($row->streamer_link),
+			'avatar_url'  => esc_url($row->streamer_avatar_url),
+			'event_id'    => $row->event_id,
+			'event_name'  => esc_html($row->event_name),
+			'event_icon_url'  => esc_url($row->event_icon_url),
 		];
 	}
 
@@ -293,6 +301,10 @@ function column($day_name_pl, array $grouped_schedule, array $week_dates): void 
 				}
 				echo '<div class="koi-schedule-streamer">';
 				echo '<a href="' . esc_url($streamer['link']) . '" target="_blank" title="' . esc_attr($streamer['name']) . '">';
+				echo '<span class="koi-streamer-info">';
+				echo '<span class="koi-streamer-event">';
+				echo '<img class="koi-streamer-event-icon" src="' . esc_url($streamer['event_icon_url']) . '" alt="' . esc_attr($streamer['event_name'] ?? '') . '">';
+				echo '</span>';
 				echo '<span class="koi-streamer-avatar" style="background-image: url(\'' . esc_url($streamer['avatar_url']) . '\');"></span>';
 				echo '</a>';
 				echo '</div>';

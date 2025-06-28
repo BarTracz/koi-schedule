@@ -121,6 +121,31 @@
     text-decoration: underline;
 }
 
+.koi-streamer-info {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.koi-streamer-event {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #008cff;
+    border-radius: 8px;
+}
+
+.koi-streamer-event-icon {
+    width: 32px;
+    height: 32px;
+    padding: 5px;
+    display: block;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 .koi-streamer-avatar {
     width: 100%;
     border-radius: 8px;

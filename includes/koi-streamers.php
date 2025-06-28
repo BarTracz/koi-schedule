@@ -79,7 +79,7 @@ function streamers_entry_form_handler() {
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-streamers'));
+			wp_die(esc_html__('No permissions.', 'koi-streamers'));
 		}
 
 		$name = sanitize_text_field($_POST['streamer_name']);
@@ -88,11 +88,11 @@ function streamers_entry_form_handler() {
 
 		// Walidacja URL
 		if (!filter_var($link, FILTER_VALIDATE_URL)) {
-			echo '<div class="error"><p>' . esc_html__('Nieprawidłowy link.', 'koi-streamers') . '</p></div>';
+			echo '<div class="error"><p>' . esc_html__('Link invalid.', 'koi-streamers') . '</p></div>';
 			return;
 		}
 		if ($avatar_url && !filter_var($avatar_url, FILTER_VALIDATE_URL)) {
-			echo '<div class="error"><p>' . esc_html__('Nieprawidłowy URL avatara.', 'koi-streamers') . '</p></div>';
+			echo '<div class="error"><p>' . esc_html__('Invalid avatar URL.', 'koi-streamers') . '</p></div>';
 			return;
 		}
 
@@ -110,7 +110,7 @@ function streamers_entry_form_handler() {
 		]);
 
 		if ($wpdb->insert_id) {
-			echo '<div class="updated"><p>' . esc_html__('Streamer added successfully!', 'koi-streamers') . '</p></div>';
+			echo '<div class="updated"><p>' . esc_html__('Streamer added successfully', 'koi-streamers') . '</p></div>';
 		} else {
 			error_log('Database Insert Error: ' . $wpdb->last_error);
 			echo '<div class="error"><p>' . esc_html__('Failed to add streamer. Please try again.', 'koi-streamers') . '</p></div>';
@@ -192,7 +192,7 @@ function streamers_edit_entry_form_handler() {
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-streamers'));
+			wp_die(esc_html__('No permissions.', 'koi-streamers'));
 		}
 
 		$streamer_id = intval($_POST['streamer_id']);
@@ -201,11 +201,11 @@ function streamers_edit_entry_form_handler() {
 		$avatar_url = esc_url_raw($_POST['avatar_url']);
 
 		if (!filter_var($link, FILTER_VALIDATE_URL)) {
-			echo '<div class="error"><p>' . esc_html__('Nieprawidłowy link.', 'koi-streamers') . '</p></div>';
+			echo '<div class="error"><p>' . esc_html__('Link invalid.', 'koi-streamers') . '</p></div>';
 			return;
 		}
 		if ($avatar_url && !filter_var($avatar_url, FILTER_VALIDATE_URL)) {
-			echo '<div class="error"><p>' . esc_html__('Nieprawidłowy URL avatara.', 'koi-streamers') . '</p></div>';
+			echo '<div class="error"><p>' . esc_html__('Invalid avatar URL.', 'koi-streamers') . '</p></div>';
 			return;
 		}
 
@@ -217,7 +217,7 @@ function streamers_edit_entry_form_handler() {
 		);
 
 		if ($result !== false) {
-			echo '<div class="updated"><p>' . esc_html__('Streamer updated successfully!', 'koi-streamers') . '</p></div>';
+			echo '<div class="updated"><p>' . esc_html__('Streamer updated successfully', 'koi-streamers') . '</p></div>';
 		} else {
 			echo '<div class="error"><p>' . esc_html__('Database error: ', 'koi-streamers') . esc_html($wpdb->last_error) . '</p></div>';
 		}
@@ -228,7 +228,7 @@ function streamers_edit_entry_form_handler() {
 			return;
 		}
 		if (!current_user_can('manage_options')) {
-			wp_die(esc_html__('Brak uprawnień.', 'koi-streamers'));
+			wp_die(esc_html__('No permissions.', 'koi-streamers'));
 		}
 
 		$streamer_id = intval($_POST['streamer_id']);
@@ -236,7 +236,7 @@ function streamers_edit_entry_form_handler() {
 		$result = $wpdb->delete($streamers_table, ['id' => $streamer_id], ['%d']);
 
 		if ($result !== false) {
-			echo '<div class="updated"><p>' . esc_html__('Streamer deleted successfully!', 'koi-streamers') . '</p></div>';
+			echo '<div class="updated"><p>' . esc_html__('Streamer deleted successfully', 'koi-streamers') . '</p></div>';
 		} else {
 			echo '<div class="error"><p>' . esc_html__('Database error: ', 'koi-streamers') . esc_html($wpdb->last_error) . '</p></div>';
 		}
@@ -254,7 +254,7 @@ function streamers_add_menu_page() {
 		'koi_streamers',
 		'streamers_entry_page',
 		'dashicons-admin-users',
-		6
+		2
 	);
 
 	add_submenu_page(
