@@ -2,7 +2,7 @@
     /**
      * Plugin Name: KoiSchedule
      * Description: A plugin to manage schedules for KoiCorp
-     * Version: 0.2.0
+     * Version: 0.1
      * Author: Enduriionek
      */
 
