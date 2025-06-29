@@ -92,7 +92,40 @@ function schedule_entry_form(): false|string
                 </tr>
                 <tr>
                     <td><input type="date" id="date_0" name="schedule_entries[0][date]" required></td>
-                    <td><input type="time" id="time_0" name="schedule_entries[0][time]" required></td>
+                    <td>
+                        <div>
+                            <label><input type="radio" name="schedule_entries[0][time_radio]" value="12:00" checked>12:00</label>
+                            <label><input type="radio" name="schedule_entries[0][time_radio]" value="16:00">16:00</label>
+                            <label><input type="radio" name="schedule_entries[0][time_radio]" value="20:00">20:00</label>
+                            <label>
+                                <input type="radio" name="schedule_entries[0][time_radio]" value="other"> Other:
+                                <input type="number" id="hour_0" name="schedule_entries[0][hour]" min="0" max="23" style="width:50px;" disabled placeholder="hh">
+                                :
+                                <input type="number" id="minute_0" name="schedule_entries[0][minute]" min="0" max="59" style="width:50px;" disabled placeholder="mm">
+                            </label>
+                        </div>
+                        <script>
+                            document.querySelectorAll('input[name="schedule_entries[0][time_radio]"]').forEach(radio => {
+                                radio.addEventListener('change', function() {
+                                    const hourInput = document.getElementById('hour_0');
+                                    const minuteInput = document.getElementById('minute_0');
+                                    if (this.value === 'other') {
+                                        hourInput.disabled = false;
+                                        hourInput.required = true;
+                                        minuteInput.disabled = false;
+                                        minuteInput.required = true;
+                                    } else {
+                                        hourInput.disabled = true;
+                                        hourInput.required = false;
+                                        hourInput.value = '';
+                                        minuteInput.disabled = true;
+                                        minuteInput.required = false;
+                                        minuteInput.value = '';
+                                    }
+                                });
+                            });
+                        </script>
+                    </td>
                     <td>
                         <select name="schedule_entries[0][event_id]">
                             <?php foreach ($events as $event): ?>
@@ -116,7 +149,31 @@ function schedule_entry_form(): false|string
 		<?php wp_nonce_field('koi_schedule_nonce_action', 'koi_schedule_nonce_field'); ?>
     </form>
     <script>
-        // Dodawanie kolejnych wpisów do harmonogramu (JS)
+        // Funkcja do obsługi pola "Inna godzina" w harmonogramie
+        function attachOtherTimeHandler(entry, index) {
+            const timeRadios = entry.querySelectorAll(`input[name="schedule_entries[${index}][time_radio]"]`);
+            const hourInput = entry.querySelector(`#hour_${index}`);
+            const minuteInput = entry.querySelector(`#minute_${index}`);
+
+            timeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'other') {
+                        hourInput.disabled = false;
+                        hourInput.required = true;
+                        minuteInput.disabled = false;
+                        minuteInput.required = true;
+                    } else {
+                        hourInput.disabled = true;
+                        hourInput.required = false;
+                        hourInput.value = '';
+                        minuteInput.disabled = true;
+                        minuteInput.required = false;
+                        minuteInput.value = '';
+                    }
+                });
+            });
+        }
+
         document.getElementById('add-entry').addEventListener('click', function() {
             const container = document.getElementById('schedule-entries');
             const index = container.querySelectorAll('table.schedule-entry').length;
@@ -131,7 +188,19 @@ function schedule_entry_form(): false|string
             </tr>
             <tr>
                 <td><input type="date" id="date_${index}" name="schedule_entries[${index}][date]" required></td>
-                <td><input type="time" id="time_${index}" name="schedule_entries[${index}][time]" required></td>
+                <td>
+                <div>
+                    <label><input type="radio" name="schedule_entries[${index}][time_radio]" value="12:00" checked>12:00</label>
+                    <label><input type="radio" name="schedule_entries[${index}][time_radio]" value="16:00">16:00</label>
+                    <label><input type="radio" name="schedule_entries[${index}][time_radio]" value="20:00">20:00</label>
+                    <label>
+                        <input type="radio" name="schedule_entries[${index}][time_radio]" value="other"> Other:
+                        <input type="number" id="hour_${index}" name="schedule_entries[${index}][hour]" min="0" max="23" style="width:50px;" disabled placeholder="hh">
+                        :
+                        <input type="number" id="minute_${index}" name="schedule_entries[${index}][minute]" min="0" max="59" style="width:50px;" disabled placeholder="mm">
+                    </label>
+                </div>
+                </td>
                 <td>
                     <select name="schedule_entries[${index}][event_id]">
                         <?php foreach ($events as $event): ?>
@@ -145,6 +214,8 @@ function schedule_entry_form(): false|string
         `;
             container.appendChild(entry);
 
+            attachOtherTimeHandler(entry, index);
+
             entry.querySelector('.remove-entry').addEventListener('click', function() {
                 container.removeChild(entry);
             });
@@ -157,6 +228,10 @@ function schedule_entry_form(): false|string
                 const entry = button.closest('table.schedule-entry');
                 container.removeChild(entry);
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            attachOtherTimeHandler(document, 0);
         });
     </script>
 	<?php
@@ -190,7 +265,22 @@ function schedule_entry_form_handler(): void
 
 		foreach ($schedule_entries as $entry) {
 			$date = sanitize_text_field($entry['date']);
-			$time = sanitize_text_field($entry['time']);
+			// Pobierz czas z radio lub z pól hour/minute
+			if (isset($entry['time_radio'])) {
+				if ($entry['time_radio'] === 'other') {
+					$hour = isset($entry['hour']) ? intval($entry['hour']) : null;
+					$minute = isset($entry['minute']) ? intval($entry['minute']) : null;
+					if ($hour === null || $minute === null || $hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
+						echo '<div class="error"><p>' . esc_html__('Invalid hour or minute.', 'koi-schedule') . '</p></div>';
+						continue;
+					}
+					$time = sprintf('%02d:%02d', $hour, $minute);
+				} else {
+					$time = sanitize_text_field($entry['time_radio']);
+				}
+			} else {
+				$time = '00:00';
+			}
 			// Walidacja daty i czasu
 			if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^\d{2}:\d{2}$/', $time)) {
 				echo '<div class="error"><p>' . esc_html__('Invalid date/time format.', 'koi-schedule') . '</p></div>';
@@ -279,7 +369,11 @@ function schedule_edit_entry_form(): void
 			echo '</select>';
 			echo '</td>';
 			echo '<td><input type="date" name="date" value="' . $date . '" required></td>';
-			echo '<td><input type="time" name="time" value="' . $time . '" required></td>';
+			echo '<td>
+                <input type="number" name="hour" min="0" max="23" value="' . esc_attr(date('H', strtotime($entry->time))) . '" required style="width:50px;" placeholder="hh">
+                :
+                <input type="number" name="minute" min="0" max="59" value="' . esc_attr(date('i', strtotime($entry->time))) . '" required style="width:50px;" placeholder="mm">
+            </td>';
 			echo '<td><select name="event_id">';
 			foreach ($events as $event) {
 				$selected = ($event->id == $entry->event_id) ? 'selected' : '';
@@ -376,7 +470,13 @@ function schedule_edit_entry_form_handler(): void
 		$entry_id = intval($_POST['entry_id']);
 		$streamer_id = intval($_POST['streamer_id']);
 		$date = sanitize_text_field($_POST['date']);
-		$time = sanitize_text_field($_POST['time']);
+		$hour = isset($_POST['hour']) ? intval($_POST['hour']) : null;
+		$minute = isset($_POST['minute']) ? intval($_POST['minute']) : null;
+		if ($hour === null || $minute === null || $hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
+			echo '<div class="error"><p>' . esc_html__('Invalid hour or minute.', 'koi-schedule') . '</p></div>';
+			return;
+		}
+		$time = sprintf('%02d:%02d', $hour, $minute);
 		$datetime = $date . ' ' . $time;
 		$event_id = isset($_POST['event_id']) ? intval($_POST['event_id']) : null;
 		$result = $wpdb->update($schedule_table,
