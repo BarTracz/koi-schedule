@@ -22,10 +22,13 @@ require_once KOI_SCHEDULE_PATH . 'includes/koi-schedule.php';
 require_once KOI_SCHEDULE_PATH . 'includes/koi-schedule-front-display.php';
 
 require_once KOI_SCHEDULE_PATH . 'includes/koi-streamers.php';
+require_once KOI_SCHEDULE_PATH . 'includes/koi-events.php';
 
 register_activation_hook(__FILE__, function () {
     ob_start();
     create_koi_streamers_table();
+	create_koi_events_table();
     create_koi_schedule_table();
+	update_koi_schedule_table();
     ob_end_clean();
 });
