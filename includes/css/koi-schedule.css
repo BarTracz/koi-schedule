@@ -307,3 +307,15 @@
     display: block;
     margin: 0 auto;
 }
+
+.koi-admin-filters {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.koi-number-field {
+    width: 50px;
+}
